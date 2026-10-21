@@ -8,3 +8,6 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )
+
+// ゲーム集（IPPUKU GAMES）のサービスワーカー。ホーム画面に追加したときオフラインでも遊べるようにする（本番だけ）
+if (import.meta.env.PROD && 'serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {})
