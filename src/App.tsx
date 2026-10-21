@@ -1,4 +1,5 @@
-import { Armchair, CircleHelp, DoorOpen, RotateCcw, ScrollText, Siren, Undo2 } from 'lucide-react'
+import { Armchair, CircleHelp, DoorOpen, RotateCcw, ScrollText, Siren, Undo2, LayoutGrid } from 'lucide-react'
+import { HUB_URL } from './hub'
 import { useState } from 'react'
 import { DiceGuide } from './components/DiceGuide'
 import { Overlays } from './components/Overlays'
@@ -29,9 +30,12 @@ export default function App() {
         className="sticky top-0 z-30 -mx-4 mb-2 flex items-center justify-between gap-2 bg-[var(--bg)]/85 px-4 py-1.5 backdrop-blur md:py-2.5"
         style={zoom > 1 ? { zoom } : undefined}
       >
-        <h1>
-          <Title size="sm" />
-        </h1>
+        <div className="flex min-w-0 items-center gap-1">
+          <HubLink />
+          <h1>
+            <Title size="sm" />
+          </h1>
+        </div>
         <div className="flex items-center gap-0.5 sm:gap-1.5">
           {!setup && (
             <span className="whitespace-nowrap rounded-full bg-[var(--card)] px-2.5 py-1 text-xs font-bold">
@@ -156,4 +160,13 @@ function Controls() {
                 ? '全員の宣言を公開中…'
                 : 'あなたは席を立ちました。残った人の行方を見守ろう'
   return <p className="flex min-h-[52px] items-center justify-center text-center text-sm font-bold text-[var(--muted)]">{text}</p>
+}
+
+/** ゲーム集の入口へ戻る */
+function HubLink() {
+  return (
+    <a href={HUB_URL} aria-label="ゲーム一覧へ" title="ゲーム一覧へ" className="-ml-1.5 shrink-0 rounded-full p-1.5 text-[var(--muted)] hover:bg-[var(--panel)] hover:text-[var(--text)]">
+      <LayoutGrid size={18} />
+    </a>
+  )
 }

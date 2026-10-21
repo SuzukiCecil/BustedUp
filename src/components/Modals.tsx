@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { CircleHelp, Crown, RotateCcw, Siren, Trophy, Undo2, X } from 'lucide-react'
+import { CircleHelp, Crown, RotateCcw, Siren, Trophy, Undo2, X, LayoutGrid } from 'lucide-react'
+import { HUB_URL } from '../hub'
 import type { ReactNode } from 'react'
 import { LEVELS, PERSONALITY, type Level } from '../game/cpu'
 import { DICE, DIE_IDS, UP_FACES, UP_LABEL } from '../game/dice'
@@ -124,9 +125,14 @@ export function StartModal({ onRules }: { onRules: () => void }) {
       >
         賭場に入る
       </button>
-      <button type="button" onClick={onRules} className="mx-auto mt-3 flex items-center gap-1 text-sm font-bold text-[var(--muted)] hover:text-[var(--text)]">
-        <CircleHelp size={16} /> 遊び方
-      </button>
+      <div className="mt-3 flex justify-center gap-5 text-sm font-bold text-[var(--muted)]">
+        <button type="button" onClick={onRules} className="flex items-center gap-1 hover:text-[var(--text)]">
+          <CircleHelp size={16} /> 遊び方
+        </button>
+        <a href={HUB_URL} className="flex items-center gap-1 hover:text-[var(--text)]">
+          <LayoutGrid size={16} /> ゲーム一覧へ
+        </a>
+      </div>
     </Modal>
   )
 }
