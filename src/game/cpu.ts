@@ -91,9 +91,23 @@ function leaveGuess(state: GameState, id: PlayerId): number {
   return stayValue(state, o, p.pool, state.pot, 2) < leave ? 0.6 : 0.15
 }
 
+/**
+ * 今席を立てば必ず勝てるか。
+ * 席に残っているのが自分だけで、立てば目標点に届き、ほかの全員の金庫を上回るとき（立てばラウンドもゲームも終わる）。
+ * ほかにも残っている人がいると、その人はこの先いくらでもチップを増やせるので確実とは言えない。
+ */
+export function leaveWins(state: GameState, id: PlayerId): boolean {
+  const me = playerOf(state, id)
+  if (!me.inRound || stayers(state).length !== 1) return false
+  const total = me.bank + me.pool + shareOf(state.pot, 1)
+  return total >= state.target && state.players.every((p) => p.id === id || p.bank < total)
+}
+
 export function cpuDecision(state: GameState, id: PlayerId, level: Level, rng: Rng = Math.random): Decision {
   const cfg = LEVELS[level]
   const me = playerOf(state, id)
+  // 強さによらず、確実に勝てるなら立つ
+  if (leaveWins(state, id)) return 'leave'
   if (me.pool <= 0 && state.pot <= 0) return 'stay'
   const others = stayers(state).filter((p) => p.id !== id)
   let risk = personalityOf(id).risk * (cfg.scoreAware ? scoreRisk(state, id) : 1)

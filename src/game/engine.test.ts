@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chooseDice, createGame, declare, nextRound, roll, rollExtra, rollResult, rollUp, shareOf } from './engine'
 import { bustChance, outcomes } from './odds'
-import { cpuChoose, cpuChooseExtra, cpuDecision } from './cpu'
+import { cpuChoose, cpuChooseExtra, cpuDecision, leaveWins } from './cpu'
 import type { GameState, RollResult } from './types'
 
 const ok = (chips: number, pot = 0, up: RollResult['up'] = null): RollResult => ({ dice: [], up, extra: [], sirens: 0, chips, pot, outcome: 'ok' })
@@ -149,6 +149,26 @@ describe('確率とCPU', () => {
     // あなた：チップ2000を抱えて残っている。CPUは全員席を立った
     g = { ...g, players: g.players.map((p) => (p.id === 'p1' ? { ...p, pool: 2000 } : { ...p, pool: 0, inRound: false })) }
     expect(cpuDecision(g, 'p1', 'hard')).toBe('leave')
+  })
+
+  it('どの強さでも、席を立てば確実に勝てるなら立つ（残っているのが自分だけで、立てば目標点に届き首位）', () => {
+    let g = chooseDice(createGame({ cpuCount: 2 }), ['chohan', 'roulette', 'blackjack'])
+    g = roll(g, rng, ok(0))
+    // cpu1 だけが残っていて、金庫1400＋チップ60＋供託60で目標点1500に届く
+    const setup = (others: number) => ({
+      ...g,
+      players: g.players.map((p) => (p.id === 'cpu1' ? { ...p, bank: 1400, pool: 60 } : { ...p, bank: others, pool: 0, inRound: false })),
+      pot: 60,
+    })
+    for (const lv of ['easy', 'normal', 'hard'] as const) {
+      for (let i = 0; i < 20; i++) expect(cpuDecision(setup(1000), 'cpu1', lv, Math.random)).toBe('leave')
+    }
+    expect(leaveWins(setup(1000), 'cpu1')).toBe(true)
+    // ほかの人の金庫を上回れない・目標点に届かない・ほかにも残っている人がいる、なら確実ではない
+    expect(leaveWins(setup(1520), 'cpu1')).toBe(false)
+    expect(leaveWins({ ...setup(1000), pot: 0 }, 'cpu1')).toBe(false)
+    const crowded = setup(1000)
+    expect(leaveWins({ ...crowded, players: crowded.players.map((p) => (p.id === 'p1' ? { ...p, inRound: true } : p)) }, 'cpu1')).toBe(false)
   })
 
   it('CPUの人数は2〜3人（範囲外は寄せる）', () => {
